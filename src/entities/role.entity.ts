@@ -47,7 +47,7 @@ export class Role {
     type: 'enum',
     enum: Status,
     enumName: 'status_enum',
-    default: Status.INACTIVE,
+    default: Status.ACTIVE,
   })
   status: Status;
 
