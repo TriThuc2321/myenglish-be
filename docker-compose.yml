@@ -4,7 +4,7 @@ services:
     container_name: myenglish-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d myenglish"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d myenglish']
       interval: 5s
       timeout: 5s
       retries: 5
