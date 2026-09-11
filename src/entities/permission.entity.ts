@@ -9,6 +9,7 @@ import {
 
 import { Status } from '../types/common.type.js';
 import { AuditMetadata } from './audit-metadata.entity.js';
+import { StatusColumn } from './common.entity.js';
 import { Role } from './role.entity.js';
 
 @Entity('permissions', { schema: 'public' })
@@ -20,25 +21,19 @@ import { Role } from './role.entity.js';
 @Index('idx_permissions_subject', ['subject'])
 export class Permission {
   @PrimaryGeneratedColumn('increment', { name: 'permission_id' })
-  id!: number;
+  id: number;
 
   @Column({ name: 'action', type: 'varchar', length: 255 })
-  action!: string;
+  action: string;
 
   @Column({ name: 'subject', type: 'varchar', length: 255 })
-  subject!: string;
+  subject: string;
 
-  @Column({
-    name: 'status',
-    type: 'enum',
-    enum: Status,
-    enumName: 'status_enum',
-    default: Status.ACTIVE,
-  })
-  status: Status;
+  @Column(() => StatusColumn, { prefix: false })
+  status: StatusColumn;
 
   @Column(() => AuditMetadata, { prefix: false })
-  auditMetadata!: AuditMetadata;
+  auditMetadata: AuditMetadata;
 
   @ManyToMany(() => Role, (role) => role.permissions)
   roles: Relation<Role>[];

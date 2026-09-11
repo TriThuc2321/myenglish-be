@@ -11,12 +11,12 @@ import {
 
 import { Status } from '../types/common.type.js';
 import { AuditMetadata } from './audit-metadata.entity.js';
+import { StatusColumn } from './common.entity.js';
 import { Permission } from './permission.entity.js';
 import { User } from './user.entity.js';
 
 @Entity('roles', { schema: 'public' })
 @Index('idx_roles_code', ['code'])
-@Index('idx_roles_status', ['status'])
 @Index('uq_roles_code', ['code'], {
   unique: true,
   where: `"status" != '${Status.DELETED}'`,
@@ -34,14 +34,8 @@ export class Role {
   @Column({ name: 'can_access_cms', type: 'boolean', default: false })
   canAccessCms!: boolean;
 
-  @Column({
-    name: 'status',
-    type: 'enum',
-    enum: Status,
-    enumName: 'status_enum',
-    default: Status.ACTIVE,
-  })
-  status: Status;
+  @Column(() => StatusColumn, { prefix: false })
+  status: StatusColumn;
 
   @Column(() => AuditMetadata, { prefix: false })
   auditMetadata!: AuditMetadata;
