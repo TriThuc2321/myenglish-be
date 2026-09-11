@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   ManyToMany,
   PrimaryGeneratedColumn,
   type Relation,
@@ -11,6 +12,12 @@ import { AuditMetadata } from './audit-metadata.entity.js';
 import { Role } from './role.entity.js';
 
 @Entity('permissions', { schema: 'public' })
+@Index('uq_permissions_action_subject', ['action', 'subject'], {
+  unique: true,
+  where: `"status" != '${Status.DELETED}'`,
+})
+@Index('idx_permissions_action', ['action'])
+@Index('idx_permissions_subject', ['subject'])
 export class Permission {
   @PrimaryGeneratedColumn('increment', { name: 'permission_id' })
   id!: number;

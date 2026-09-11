@@ -1,12 +1,5 @@
 import { Exclude } from 'class-transformer';
 import {
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  MinLength,
-} from 'class-validator';
-import {
   Column,
   Entity,
   Index,
@@ -34,18 +27,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
   id: string;
 
-  @Column({ name: 'email', type: 'varchar', length: 225, nullable: true })
-  @IsEmail()
-  @IsOptional()
+  @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
   email?: string | null;
 
-  @Column({ name: 'password', type: 'varchar', length: 225, nullable: true })
-  @MinLength(6)
+  @Column({ name: 'password', type: 'varchar', length: 255, nullable: true })
   @Exclude()
-  @IsOptional()
   password?: string;
 
-  @IsEnum(Provider)
   @Column({
     name: 'provider',
     type: 'enum',
@@ -56,7 +44,6 @@ export class User {
   provider: Provider;
 
   @Column({ name: 'first_name', type: 'varchar', length: 255, nullable: false })
-  @IsNotEmpty()
   firstName: string;
 
   @Column({ name: 'last_name', type: 'varchar', length: 255, nullable: true })
@@ -66,11 +53,9 @@ export class User {
   avatar: string;
 
   @Column({ name: 'phone', type: 'varchar', length: 20, nullable: true })
-  @IsOptional()
   phone?: string | null;
 
   @Column({ name: 'address', type: 'varchar', length: 500, nullable: true })
-  @IsOptional()
   address?: string | null;
 
   @Column({ name: 'email_verified', type: 'boolean', default: false })

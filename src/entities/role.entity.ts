@@ -1,4 +1,3 @@
-import { IsBoolean, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import {
   Column,
   Entity,
@@ -27,19 +26,12 @@ export class Role {
   id: number;
 
   @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(255)
   name: string;
 
   @Column({ name: 'code', type: 'varchar', length: 255, nullable: false })
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(255)
   code: string;
 
   @Column({ name: 'can_access_cms', type: 'boolean', default: false })
-  @IsBoolean()
   canAccessCms!: boolean;
 
   @Column({
