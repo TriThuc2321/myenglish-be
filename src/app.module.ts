@@ -4,17 +4,18 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-import corsConfig from './configs/cors.config.js';
-import dbConfig, { getDbOption } from './configs/database.config.js';
-import googleConfig from './configs/google.config.js';
+import { corsConfig } from './configs/cors.config.js';
+import { getDbOption, databaseConfig } from './configs/database.config.js';
+import { googleConfig } from './configs/google.config.js';
+import { jwtConfig } from './configs/jwt.config.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [dbConfig, googleConfig, corsConfig],
+      load: [databaseConfig, googleConfig, corsConfig, jwtConfig],
     }),
     ThrottlerModule.forRoot({
       throttlers: [
@@ -28,8 +29,15 @@ import googleConfig from './configs/google.config.js';
       inject: [ConfigService],
       useFactory: getDbOption,
     }),
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  controllers: [],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

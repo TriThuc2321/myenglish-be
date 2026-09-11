@@ -1,19 +1,15 @@
 import type { INestApplication } from '@nestjs/common';
 
-import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const SWAGGER_PATH = 'docs';
 
-export const configSwagger = (
-  app: INestApplication,
-  configService: ConfigService,
-) => {
+export const configSwagger = (app: INestApplication) => {
   const config = new DocumentBuilder()
     .setTitle('My English APIs')
     .setDescription('My English APIs document')
     .setVersion('1.0.0')
-    .addCookieAuth(configService.get('SWAGGER_COOKIE_NAME', 'access_token'))
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
