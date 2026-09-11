@@ -47,10 +47,10 @@ export class User {
   firstName: string;
 
   @Column({ name: 'last_name', type: 'varchar', length: 255, nullable: true })
-  lastName?: string;
+  lastName?: string | null;
 
   @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
-  avatar: string;
+  avatar?: string | null;
 
   @Column({ name: 'phone', type: 'varchar', length: 20, nullable: true })
   phone?: string | null;
