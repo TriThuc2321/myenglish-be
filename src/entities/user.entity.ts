@@ -12,7 +12,6 @@ import {
 import { Status } from '../types/common.type.js';
 import { Provider } from '../types/user.type.js';
 import { AuditMetadata } from './audit-metadata.entity.js';
-import { StatusColumn } from './common.entity.js';
 import { Role } from './role.entity.js';
 
 @Entity('users', { schema: 'public' })
@@ -62,8 +61,14 @@ export class User {
   @Column({ name: 'email_verified', type: 'boolean', default: false })
   emailVerified: boolean;
 
-  @Column(() => StatusColumn, { prefix: false })
-  status: StatusColumn;
+  @Column({
+    name: 'status',
+    type: 'enum',
+    enum: Status,
+    enumName: 'status_enum',
+    default: Status.ACTIVE,
+  })
+  status: Status;
 
   @Column(() => AuditMetadata, { prefix: false })
   auditMetadata!: AuditMetadata;

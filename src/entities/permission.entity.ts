@@ -9,7 +9,6 @@ import {
 
 import { Status } from '../types/common.type.js';
 import { AuditMetadata } from './audit-metadata.entity.js';
-import { StatusColumn } from './common.entity.js';
 import { Role } from './role.entity.js';
 
 @Entity('permissions', { schema: 'public' })
@@ -29,8 +28,14 @@ export class Permission {
   @Column({ name: 'subject', type: 'varchar', length: 255 })
   subject: string;
 
-  @Column(() => StatusColumn, { prefix: false })
-  status: StatusColumn;
+  @Column({
+    name: 'status',
+    type: 'enum',
+    enum: Status,
+    enumName: 'status_enum',
+    default: Status.ACTIVE,
+  })
+  status: Status;
 
   @Column(() => AuditMetadata, { prefix: false })
   auditMetadata: AuditMetadata;
