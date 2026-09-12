@@ -10,6 +10,8 @@ import { googleConfig } from './configs/google.config.js';
 import { jwtConfig } from './configs/jwt.config.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
+import { PermissionGuard } from './modules/auth/guards/permission.guard.js';
+import { CaslModule } from './shared/casl/casl.module.js';
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
       useFactory: getDbOption,
     }),
     AuthModule,
+    CaslModule,
   ],
   controllers: [],
   providers: [
@@ -37,6 +40,10 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
   ],
 })

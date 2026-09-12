@@ -19,6 +19,7 @@ export enum PermissionSubject {
   ALL = 'all',
   ROLE = 'role',
   PERMISSION = 'permission',
+  USER = 'user',
 }
 
 export interface ITokenPayload {
@@ -34,3 +35,8 @@ export interface ITokenPayload {
 export interface IRequestWithUser extends Request {
   user: ITokenPayload;
 }
+
+export const UserErrorEnum = {
+  EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
+} as const;
+export type UserErrorEnum = (typeof UserErrorEnum)[keyof typeof UserErrorEnum];

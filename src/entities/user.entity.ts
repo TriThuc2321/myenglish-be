@@ -61,6 +61,9 @@ export class User {
   @Column({ name: 'email_verified', type: 'boolean', default: false })
   emailVerified: boolean;
 
+  @Column({ name: 'date_of_birth', type: 'date', nullable: true })
+  dateOfBirth?: Date | string | null;
+
   @Column({
     name: 'status',
     type: 'enum',
@@ -69,6 +72,9 @@ export class User {
     default: Status.ACTIVE,
   })
   status: Status;
+
+  @Column({ name: 'role_id', type: 'integer' })
+  roleId: number;
 
   @Column(() => AuditMetadata, { prefix: false })
   auditMetadata!: AuditMetadata;
