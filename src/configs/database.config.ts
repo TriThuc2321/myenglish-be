@@ -1,20 +1,13 @@
-import { ConfigService, registerAs } from '@nestjs/config';
+import { ConfigService, ConfigType, registerAs } from '@nestjs/config';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DataSourceOptions } from 'typeorm';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export interface DatabaseConfig {
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  name: string;
-  sync: boolean;
-}
+export type DatabaseConfig = ConfigType<typeof databaseConfig>;
 
-export default registerAs('database', () => ({
+export const databaseConfig = registerAs('database', () => ({
   host: process.env.DATABASE_HOST,
   port: parseInt(process.env.DATABASE_PORT ?? '', 10) || 5432,
   username: process.env.DATABASE_USERNAME,
@@ -38,5 +31,8 @@ export const getDbOption = (
     database: name,
     synchronize: sync,
     entities: [join(__dirname, './../entities/*.entity.{js,ts}')],
+    ssl: {
+      rejectUnauthorized: false,
+    },
   };
 };
