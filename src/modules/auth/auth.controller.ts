@@ -13,6 +13,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { type IRequestWithUser } from '../../types/auth.type.js';
 import { Provider } from '../../types/user.type.js';
 import { AuthService } from './auth.service.js';
+import { CheckPermissions } from './decorators/check-permissions.decorator.js';
 import { Public } from './decorators/public.decorator.js';
 import { LoginDto } from './dto/auth.dto.js';
 import { JwtAuthGuard } from './guards/jwt.guard.js';
@@ -44,11 +45,13 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
+  @CheckPermissions()
   getProfile(@Req() req: IRequestWithUser) {
     return req.user;
   }
 
   @Post('logout')
+  @CheckPermissions()
   @ApiOperation({ summary: 'User Logout' })
   logout() {
     return this.authService.logout();

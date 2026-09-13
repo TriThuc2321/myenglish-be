@@ -31,11 +31,14 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    const requiredPermissions =
-      this.reflector.get<PossibleAbilities[] | undefined>(
-        CHECK_PERMISSION_KEY,
-        context.getHandler(),
-      ) ?? [];
+    const requiredPermissions = this.reflector.get<
+      PossibleAbilities[] | undefined
+    >(CHECK_PERMISSION_KEY, context.getHandler());
+
+    if (!requiredPermissions) {
+      return false;
+    }
+
     const { user } = context.switchToHttp().getRequest<IRequestWithUser>();
 
     const ability = this.caslAbilityFactory.createForUser(user);
