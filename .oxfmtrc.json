@@ -15,5 +15,6 @@
       "unknown"
     ]
   },
+  "endOfLine": "crlf",
   "ignorePatterns": []
 }
