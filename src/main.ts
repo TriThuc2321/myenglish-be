@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
@@ -35,8 +35,13 @@ async function bootstrap() {
     origin: configService.get<string[]>('cors.origins'),
   });
   app.setGlobalPrefix('api');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
-  configSwagger(app, configService);
+  configSwagger(app);
 
   await app.listen(APP_PORT, '0.0.0.0', () => {
     const LOCAL_DOMAIN = httpsOptions
