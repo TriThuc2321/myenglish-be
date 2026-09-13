@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { compare, hash } from 'bcrypt';
+import { compare, hashSync } from 'bcrypt';
+import { randomBytes } from 'node:crypto';
 import { Repository } from 'typeorm';
 
 import { User } from '../../entities/user.entity.js';
@@ -10,6 +11,8 @@ import { Status } from '../../types/common.type.js';
 import { Provider } from '../../types/user.type.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/auth.dto.js';
+
+const DUMMY_PASSWORD_HASH = hashSync(randomBytes(32).toString('hex'), 10);
 
 @Injectable()
 export class AuthService {
@@ -20,9 +23,7 @@ export class AuthService {
   ) {}
 
   private comparePasswords(password: string, hashedPassword: string) {
-    return hashedPassword
-      ? compare(password, hashedPassword)
-      : Promise.resolve(false);
+    return compare(password, hashedPassword || DUMMY_PASSWORD_HASH);
   }
 
   private async verifyUser({
@@ -51,8 +52,13 @@ export class AuthService {
       },
     });
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    const isValidPassword = await this.comparePasswords(
+      password,
+      user?.password ?? DUMMY_PASSWORD_HASH,
+    );
+
+    if (!user || !isValidPassword) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 
     if (!user.emailVerified) {
@@ -61,24 +67,15 @@ export class AuthService {
           message: 'Email not verified',
           code: UserErrorEnum.EMAIL_NOT_VERIFIED,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.FORBIDDEN,
       );
-    }
-
-    const isValidPassword = await this.comparePasswords(
-      password,
-      user.password ?? '',
-    );
-
-    if (!isValidPassword) {
-      throw new HttpException('Incorrect password', HttpStatus.BAD_REQUEST);
     }
 
     return user;
   }
 
-  thirdPartyLogin(req: IRequestWithUser, _res: Response, _provider: Provider) {
-    return req.user;
+  thirdPartyLogin(_req: IRequestWithUser, _res: Response, _provider: Provider) {
+    return 'success';
   }
 
   async login(payload: LoginDto) {

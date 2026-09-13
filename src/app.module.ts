@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { corsConfig } from './configs/cors.config.js';
 import { getDbOption, databaseConfig } from './configs/database.config.js';
+import { validateEnv } from './configs/env.validation.js';
 import { googleConfig } from './configs/google.config.js';
 import { jwtConfig } from './configs/jwt.config.js';
 import { AuthModule } from './modules/auth/auth.module.js';
@@ -18,6 +19,7 @@ import { CaslModule } from './shared/casl/casl.module.js';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, googleConfig, corsConfig, jwtConfig],
+      validate: validateEnv,
     }),
     ThrottlerModule.forRoot({
       throttlers: [

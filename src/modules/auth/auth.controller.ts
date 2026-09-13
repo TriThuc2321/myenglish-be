@@ -17,21 +17,23 @@ import { Public } from './decorators/public.decorator.js';
 import { LoginDto } from './dto/auth.dto.js';
 import { JwtAuthGuard } from './guards/jwt.guard.js';
 @Controller('auth')
-@Public()
 @ApiTags('Auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Public()
   async login(@Body() signInDto: LoginDto) {
     return this.authService.login(signInDto);
   }
 
   @Get('google')
+  @Public()
   @UseGuards(AuthGuard('google'))
   async googleAuth() {}
 
   @Get('google/callback')
+  @Public()
   @UseGuards(AuthGuard('google'))
   googleAuthCallback(
     @Req() req: IRequestWithUser,

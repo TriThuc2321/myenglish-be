@@ -69,7 +69,6 @@ export class UsersService {
       emailVerified: row.emailVerified,
       provider: row.provider,
       role: row.role,
-      gender: row.gender,
       address: row.address,
       dateOfBirth: row.dateOfBirth,
       auditMetadata: {

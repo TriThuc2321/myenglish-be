@@ -28,7 +28,7 @@ export interface ITokenPayload {
   id: string;
   permissions: Array<{
     action: PermissionAction;
-    object: PermissionSubject;
+    subject: PermissionSubject;
   }>;
 }
 

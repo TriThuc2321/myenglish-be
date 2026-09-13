@@ -25,7 +25,7 @@ export class CaslAbilityFactory {
     const permissions = user?.permissions ?? [];
 
     for (const permission of permissions) {
-      can(permission.action, permission.object);
+      can(permission.action, permission.subject);
     }
 
     return build();

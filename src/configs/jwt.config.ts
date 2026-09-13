@@ -5,8 +5,8 @@ import { ConfigType, registerAs } from '@nestjs/config';
 type ExpiresIn = NonNullable<JwtSignOptions['expiresIn']>;
 
 export const jwtConfig = registerAs('jwt', () => ({
-  secret: process.env.JWT_SECRET ?? '',
-  secretRefresh: process.env.JWT_SECRET_REFRESH ?? '',
+  secret: process.env.JWT_SECRET as string,
+  secretRefresh: process.env.JWT_SECRET_REFRESH as string,
   expiresIn: (process.env.JWT_EXPIRES_IN ?? '5m') as ExpiresIn,
 }));
 
