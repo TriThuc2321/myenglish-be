@@ -1,17 +1,26 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-import corsConfig from './configs/cors.config.js';
-import dbConfig from './configs/database.config.js';
-import googleConfig from './configs/google.config.js';
+import { corsConfig } from './configs/cors.config.js';
+import { getDbOption, databaseConfig } from './configs/database.config.js';
+import { validateEnv } from './configs/env.validation.js';
+import { googleConfig } from './configs/google.config.js';
+import { jwtConfig } from './configs/jwt.config.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
+import { PermissionGuard } from './modules/auth/guards/permission.guard.js';
+import { CaslModule } from './shared/casl/casl.module.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [dbConfig, googleConfig, corsConfig] }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig, googleConfig, corsConfig, jwtConfig],
+      validate: validateEnv,
+    }),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -20,8 +29,24 @@ import googleConfig from './configs/google.config.js';
         },
       ],
     }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: getDbOption,
+    }),
+    AuthModule,
+    CaslModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  controllers: [],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    },
+  ],
 })
 export class AppModule {}
