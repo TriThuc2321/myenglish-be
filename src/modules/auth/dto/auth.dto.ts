@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({ example: 'test1@gmail.com', type: String })
@@ -11,4 +11,12 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
   password!: string;
+}
+
+export class LogoutDto {
+  @ApiPropertyOptional({
+    description: 'Revoke every session for the user, not just the current one',
+  })
+  @IsOptional()
+  allDevices?: boolean;
 }

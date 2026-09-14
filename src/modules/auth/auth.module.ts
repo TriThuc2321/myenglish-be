@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { jwtConfig, type JWTConfig } from '../../configs/jwt.config.js';
+import { RefreshToken } from '../../entities/refresh-token.entity.js';
 import { Role } from '../../entities/role.entity.js';
 import { User } from '../../entities/user.entity.js';
 import { UsersModule } from '../users/users.module.js';
@@ -28,7 +29,7 @@ import { JwtStrategy } from './strategies/jwt.strategy.js';
         },
       }),
     }),
-    TypeOrmModule.forFeature([User, Role]),
+    TypeOrmModule.forFeature([User, Role, RefreshToken]),
   ],
 })
 export class AuthModule {}

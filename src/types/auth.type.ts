@@ -1,3 +1,5 @@
+import type { Request } from 'express';
+
 export interface IGoogleAuth {
   name: {
     givenName: string;
@@ -36,7 +38,25 @@ export interface IRequestWithUser extends Request {
   user: ITokenPayload;
 }
 
+export interface IRequestWithGoogleUser extends Request {
+  user: IGoogleProfile;
+}
+
+export interface IGoogleProfile {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  picture?: string;
+  accessToken: string;
+  refreshToken: string;
+}
+
 export const UserErrorEnum = {
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
 } as const;
 export type UserErrorEnum = (typeof UserErrorEnum)[keyof typeof UserErrorEnum];
+
+export interface IRefreshTokenPayload {
+  sub: string; // user id
+  jti: string; // session id
+}
