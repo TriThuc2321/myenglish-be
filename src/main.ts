@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module.js';
@@ -18,6 +19,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.use(helmet());
+  app.use(cookieParser());
   app.use(
     `/${SWAGGER_PATH}`,
     helmet({
@@ -33,6 +35,7 @@ async function bootstrap() {
   );
   app.enableCors({
     origin: configService.get<string[]>('cors.origins'),
+    credentials: true,
   });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
