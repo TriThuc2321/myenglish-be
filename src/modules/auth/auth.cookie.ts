@@ -7,7 +7,7 @@ const REFRESH_COOKIE_PATH = '/api/auth';
 const baseOptions: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  sameSite: 'none',
   path: REFRESH_COOKIE_PATH,
 };
 

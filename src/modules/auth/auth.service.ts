@@ -124,9 +124,11 @@ export class AuthService {
     });
     // Opportunistic cleanup instead of a scheduler; expired rows are useless
     // for reuse detection since the signature check already rejects them.
-    this.refreshTokenRepository.delete({
-      expiresAt: LessThan(new Date()),
-    });
+    this.refreshTokenRepository
+      .delete({
+        expiresAt: LessThan(new Date()),
+      })
+      .catch(() => {});
 
     return {
       accessToken: this.jwtService.sign(this.toTokenPayload(user)),
@@ -185,17 +187,19 @@ export class AuthService {
       throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
     }
 
-    const stored = await this.refreshTokenRepository.findOneBy({
-      id: payload.jti,
-    });
+    const claim = await this.refreshTokenRepository.update(
+      {
+        id: payload.jti,
+        userId: payload.sub,
+        tokenHash: RefreshToken.hash(refreshToken),
+        revokedAt: IsNull(),
+      },
+      { revokedAt: new Date() },
+    );
 
     // A validly-signed token whose session is missing or already rotated out
     // means the token was replayed after theft: kill every session for the user.
-    if (
-      !stored ||
-      stored.revokedAt ||
-      stored.tokenHash !== RefreshToken.hash(refreshToken)
-    ) {
+    if (!claim.affected) {
       await this.revokeAllForUser(payload.sub);
       throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
     }
@@ -209,9 +213,6 @@ export class AuthService {
       throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
     }
 
-    await this.refreshTokenRepository.update(stored.id, {
-      revokedAt: new Date(),
-    });
     return this.issueTokens(user);
   }
 

@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({ example: 'test1@gmail.com', type: String })
@@ -18,5 +24,6 @@ export class LogoutDto {
     description: 'Revoke every session for the user, not just the current one',
   })
   @IsOptional()
+  @IsBoolean()
   allDevices?: boolean;
 }
