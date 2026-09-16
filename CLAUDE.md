@@ -64,7 +64,6 @@ Global guard chain, applied in `app.module.ts` via `APP_GUARD` in this order: `T
 - `POST /auth/logout` revokes the current cookie's token, or every token for the user when `allDevices: true`.
 - Expired rows are deleted opportunistically on each issue (fire-and-forget) — there is no scheduler.
 - `/auth/login` and `/auth/refresh` have a tighter `@Throttle` (10/min) than the global throttler.
-- Google OAuth (`GET /auth/google` → `/auth/google/callback`) only logs in users whose email already exists and is `ACTIVE`; it does not create accounts.
 
 ### Conventions
 
