@@ -22,6 +22,8 @@ export enum PermissionSubject {
   ROLE = 'role',
   PERMISSION = 'permission',
   USER = 'user',
+  PASSAGE = 'passage',
+  PARAGRAPH = 'paragraph',
 }
 
 export interface ITokenPayload {

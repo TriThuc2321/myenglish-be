@@ -8,7 +8,7 @@ export abstract class AuditMetadata {
     name: 'created_at',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createdAt!: Date;
+  createdAt: Date;
 
   @Column('uuid', { name: 'created_by_id', nullable: true })
   createdById?: string | null;

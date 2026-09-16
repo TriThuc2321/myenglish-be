@@ -129,5 +129,5 @@ export class DeleteUsersDto {
   @ArrayNotEmpty()
   @ArrayMaxSize(100)
   @IsUUID('4', { each: true })
-  ids!: string[];
+  ids: string[];
 }
