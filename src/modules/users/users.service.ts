@@ -33,12 +33,26 @@ const LIST_COLUMNS = [
   'u.status',
   'u.roleId',
   'u.auditMetadata.createdAt',
+  'u.auditMetadata.createdById',
   'u.auditMetadata.updatedAt',
+  'u.auditMetadata.updatedById',
   'r.id',
   'r.name',
   'r.code',
   'r.canAccessCms',
+  'creator.id',
+  'creator.email',
+  'creator.firstName',
+  'creator.lastName',
+  'creator.avatar',
+  'updater.id',
+  'updater.email',
+  'updater.firstName',
+  'updater.lastName',
+  'updater.avatar',
 ];
+
+const DETAIL_COLUMNS = [...LIST_COLUMNS, 'u.address', 'u.dateOfBirth'];
 
 @Injectable()
 export class UsersService {
@@ -47,12 +61,18 @@ export class UsersService {
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
 
-  async findAll({ page, take, search, roleId, status }: ListUsersDto) {
-    const qb = this.userRepository
+  private baseQuery(columns: string[]) {
+    return this.userRepository
       .createQueryBuilder('u')
       .leftJoin('u.role', 'r')
-      .select(LIST_COLUMNS)
+      .leftJoin('u.auditMetadata.createdBy', 'creator')
+      .leftJoin('u.auditMetadata.updatedBy', 'updater')
+      .select(columns)
       .where('u.status != :deleted', { deleted: Status.DELETED });
+  }
+
+  async findAll({ page, take, search, roleId, status }: ListUsersDto) {
+    const qb = this.baseQuery(LIST_COLUMNS);
 
     if (status) {
       qb.andWhere('u.status = :status', { status });
@@ -83,54 +103,9 @@ export class UsersService {
   }
 
   async findById(id: string) {
-    const query = `
-      SELECT
-        u.user_id as id,
-        u.email as email,
-        u.first_name as "firstName",
-        u.last_name as "lastName",
-        u.avatar as avatar,
-        u.phone as phone,
-        u.email_verified as "emailVerified",
-        u.provider as provider,
-        u.status as status,
-        u.address as address,
-        u.date_of_birth as "dateOfBirth",
-        CASE WHEN r.role_id IS NULL THEN NULL ELSE json_build_object(
-          'id', r.role_id,
-          'name', r.name,
-          'code', r.code,
-          'canAccessCms', r.can_access_cms
-        ) END as role,
-        json_build_object(
-          'createdAt', u.created_at,
-          'createdById', u.created_by_id,
-          'createdBy', CASE WHEN creator.user_id IS NULL THEN NULL ELSE json_build_object(
-            'id', creator.user_id,
-            'email', creator.email,
-            'firstName', creator.first_name,
-            'lastName', creator.last_name,
-            'avatar', creator.avatar
-          ) END,
-          'updatedAt', u.updated_at,
-          'updatedById', u.updated_by_id,
-          'updatedBy', CASE WHEN updater.user_id IS NULL THEN NULL ELSE json_build_object(
-            'id', updater.user_id,
-            'email', updater.email,
-            'firstName', updater.first_name,
-            'lastName', updater.last_name,
-            'avatar', updater.avatar
-          ) END
-        ) as "auditMetadata"
-      FROM users u
-      LEFT JOIN roles r ON r.role_id = u.role_id AND r.status = 'ACTIVE'
-      LEFT JOIN users creator ON creator.user_id = u.created_by_id
-      LEFT JOIN users updater ON updater.user_id = u.updated_by_id
-      WHERE u.user_id = $1 AND u.status != 'DELETED'
-      LIMIT 1
-    `;
-
-    const [user] = await this.userRepository.query(query, [id]);
+    const user = await this.baseQuery(DETAIL_COLUMNS)
+      .andWhere('u.id = :id', { id })
+      .getOne();
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
