@@ -17,6 +17,7 @@ import {
   UserErrorEnum,
 } from '../../types/auth.type.js';
 import { Status } from '../../types/common.type.js';
+import { DEFAULT_ROLE } from '../roles/roles.contant.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/auth.dto.js';
 
@@ -150,7 +151,8 @@ export class AuthService {
   }
 
   async thirdPartyLogin(profile: IGoogleProfile) {
-    if (!profile.email) {
+    const { email, firstName, lastName, picture } = profile;
+    if (!email) {
       throw new HttpException(
         'Google account has no email',
         HttpStatus.UNAUTHORIZED,
@@ -158,19 +160,24 @@ export class AuthService {
     }
 
     const user = await this.userRepository.findOne({
-      where: { email: profile.email, status: Status.ACTIVE },
+      where: { email, status: Status.ACTIVE },
       select: USER_TOKEN_SELECT,
       relations: { role: { permissions: true } },
     });
 
-    if (!user) {
-      throw new HttpException(
-        'No account is linked to this Google email',
-        HttpStatus.UNAUTHORIZED,
-      );
+    let newUser = user;
+
+    if (!newUser) {
+      newUser = await this.usersService.create({
+        email,
+        firstName,
+        lastName,
+        roleId: DEFAULT_ROLE.USER,
+        avatar: picture,
+      });
     }
 
-    return this.issueTokens(user);
+    return this.issueTokens(newUser);
   }
 
   async refresh(refreshToken: string | undefined) {

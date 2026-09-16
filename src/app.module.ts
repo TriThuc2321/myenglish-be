@@ -12,6 +12,7 @@ import { jwtConfig } from './configs/jwt.config.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
 import { PermissionGuard } from './modules/auth/guards/permission.guard.js';
+import { RolesModule } from './modules/roles/roles.module.js';
 import { CaslModule } from './shared/casl/casl.module.js';
 
 @Module({
@@ -34,6 +35,7 @@ import { CaslModule } from './shared/casl/casl.module.js';
       useFactory: getDbOption,
     }),
     AuthModule,
+    RolesModule,
     CaslModule,
   ],
   controllers: [],
