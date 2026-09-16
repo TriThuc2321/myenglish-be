@@ -114,7 +114,7 @@ export class UsersService {
     return user;
   }
 
-  async create(dto: CreateUserDto, actorId: string) {
+  async create(dto: CreateUserDto, actorId?: string) {
     const [emailTaken] = await Promise.all([
       this.userRepository.exists({
         where: { email: dto.email, status: Not(Status.DELETED) },

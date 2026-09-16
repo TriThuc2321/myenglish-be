@@ -31,7 +31,10 @@ export class Role {
   code: string;
 
   @Column({ name: 'can_access_cms', type: 'boolean', default: false })
-  canAccessCms!: boolean;
+  canAccessCms: boolean;
+
+  @Column({ name: 'system_role', type: 'boolean', default: false })
+  systemRole: boolean;
 
   @Column({
     name: 'status',

@@ -7,6 +7,7 @@ import { IsNull, LessThan, Repository } from 'typeorm';
 
 import { type JWTConfig, jwtConfig } from '../../configs/jwt.config.js';
 import { RefreshToken } from '../../entities/refresh-token.entity.js';
+import { Role } from '../../entities/role.entity.js';
 import { User } from '../../entities/user.entity.js';
 import {
   IGoogleProfile,
@@ -17,6 +18,7 @@ import {
   UserErrorEnum,
 } from '../../types/auth.type.js';
 import { Status } from '../../types/common.type.js';
+import { SystemRoleCode } from '../roles/roles.constant.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/auth.dto.js';
 
@@ -45,6 +47,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Role) private roleRepository: Repository<Role>,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
     @Inject(jwtConfig.KEY) private readonly jwt: JWTConfig,
@@ -150,7 +153,8 @@ export class AuthService {
   }
 
   async thirdPartyLogin(profile: IGoogleProfile) {
-    if (!profile.email) {
+    const { email, firstName, lastName, picture } = profile;
+    if (!email) {
       throw new HttpException(
         'Google account has no email',
         HttpStatus.UNAUTHORIZED,
@@ -158,19 +162,35 @@ export class AuthService {
     }
 
     const user = await this.userRepository.findOne({
-      where: { email: profile.email, status: Status.ACTIVE },
+      where: { email, status: Status.ACTIVE },
       select: USER_TOKEN_SELECT,
       relations: { role: { permissions: true } },
     });
 
-    if (!user) {
-      throw new HttpException(
-        'No account is linked to this Google email',
-        HttpStatus.UNAUTHORIZED,
-      );
+    let newUser = user;
+
+    if (!newUser) {
+      const userRole = await this.roleRepository.findOne({
+        where: { code: SystemRoleCode.USER, status: Status.ACTIVE },
+        select: { id: true },
+      });
+      if (!userRole) {
+        throw new HttpException(
+          'System USER role is missing',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      newUser = await this.usersService.create({
+        email,
+        firstName: firstName ?? 'New user',
+        lastName,
+        roleId: userRole.id,
+        avatar: picture,
+      });
     }
 
-    return this.issueTokens(user);
+    return this.issueTokens(newUser);
   }
 
   async refresh(refreshToken: string | undefined) {
