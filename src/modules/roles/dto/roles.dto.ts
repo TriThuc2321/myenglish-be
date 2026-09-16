@@ -24,13 +24,13 @@ export class CreateRoleDto {
   @IsString()
   @IsNotEmpty({ message: 'Name is required' })
   @MaxLength(255)
-  name!: string;
+  name: string;
 
   @ApiProperty({ example: 'ADMIN' })
   @IsString()
   @IsNotEmpty({ message: 'Code is required' })
   @MaxLength(255)
-  code!: string;
+  code: string;
 
   @ApiPropertyOptional({ default: false })
   @IsOptional()
@@ -82,5 +82,5 @@ export class DeleteRolesDto {
   @ArrayMaxSize(100)
   @Type(() => Number)
   @IsInt({ each: true })
-  ids!: number[];
+  ids: number[];
 }

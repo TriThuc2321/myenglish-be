@@ -46,7 +46,7 @@ export class Role {
   status: Status;
 
   @Column(() => AuditMetadata, { prefix: false })
-  auditMetadata!: AuditMetadata;
+  auditMetadata: AuditMetadata;
 
   @OneToMany(() => User, (user) => user.role)
   users: Relation<User>[];

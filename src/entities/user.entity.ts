@@ -77,7 +77,7 @@ export class User {
   roleId: number;
 
   @Column(() => AuditMetadata, { prefix: false })
-  auditMetadata!: AuditMetadata;
+  auditMetadata: AuditMetadata;
 
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({

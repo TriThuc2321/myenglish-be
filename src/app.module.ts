@@ -12,6 +12,8 @@ import { jwtConfig } from './configs/jwt.config.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtAuthGuard } from './modules/auth/guards/jwt.guard.js';
 import { PermissionGuard } from './modules/auth/guards/permission.guard.js';
+import { ParagraphsModule } from './modules/paragraphs/paragraphs.module.js';
+import { PassagesModule } from './modules/passages/passages.module.js';
 import { RolesModule } from './modules/roles/roles.module.js';
 import { CaslModule } from './shared/casl/casl.module.js';
 
@@ -36,6 +38,8 @@ import { CaslModule } from './shared/casl/casl.module.js';
     }),
     AuthModule,
     RolesModule,
+    PassagesModule,
+    ParagraphsModule,
     CaslModule,
   ],
   controllers: [],
