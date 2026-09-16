@@ -44,8 +44,8 @@ export interface IRequestWithGoogleUser extends Request {
 
 export interface IGoogleProfile {
   email?: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   picture?: string;
   accessToken: string;
   refreshToken: string;

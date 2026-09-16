@@ -33,7 +33,7 @@ export class CreateUserDto {
   @ApiProperty({ example: 'test1@gmail.com' })
   @IsEmail({}, { message: 'Invalid email address' })
   @MaxLength(255)
-  email!: string;
+  email: string;
 
   @ApiPropertyOptional({ minLength: 8 })
   @IsOptional()
@@ -46,7 +46,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty({ message: 'First name is required' })
   @MaxLength(255)
-  firstName!: string;
+  firstName: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -80,7 +80,7 @@ export class CreateUserDto {
   @ApiProperty()
   @Type(() => Number)
   @IsInt()
-  roleId!: number;
+  roleId: number;
 
   @ApiPropertyOptional({ default: false })
   @IsOptional()

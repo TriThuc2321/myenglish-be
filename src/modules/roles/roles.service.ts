@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  type OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, In, Not, Repository } from 'typeorm';
@@ -18,6 +19,7 @@ import {
   ListRolesDto,
   UpdateRoleDto,
 } from './dto/roles.dto.js';
+import { SYSTEM_ROLES, SystemRoleCode } from './roles.constant.js';
 
 const LIST_COLUMNS = [
   'r.id',
@@ -25,7 +27,7 @@ const LIST_COLUMNS = [
   'r.code',
   'r.canAccessCms',
   'r.status',
-  'r.defaultRole',
+  'r.systemRole',
   'r.auditMetadata.createdAt',
   'r.auditMetadata.createdById',
   'r.auditMetadata.updatedAt',
@@ -45,13 +47,29 @@ const LIST_COLUMNS = [
 const DETAIL_COLUMNS = [...LIST_COLUMNS, 'p.id', 'p.action', 'p.subject'];
 
 @Injectable()
-export class RolesService {
+export class RolesService implements OnModuleInit {
   constructor(
     @InjectRepository(Role) private roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
+
+  // There are no migrations/seeders, so system roles are created on boot.
+  async onModuleInit() {
+    const existing = await this.roleRepository.find({
+      where: { code: In(Object.values(SystemRoleCode)) },
+      select: { code: true },
+    });
+    const existingCodes = new Set(existing.map((r) => r.code));
+
+    const missing = Object.entries(SYSTEM_ROLES)
+      .filter(([code]) => !existingCodes.has(code))
+      .map(([code, role]) => ({ ...role, code, systemRole: true }));
+    if (missing.length) {
+      await this.roleRepository.save(missing);
+    }
+  }
 
   private baseQuery(columns: string[]) {
     return this.roleRepository
@@ -141,6 +159,15 @@ export class RolesService {
     if (codeTaken) {
       throw new ConflictException('Role code is already in use');
     }
+    if (
+      role.systemRole &&
+      ((dto.code !== undefined && dto.code !== role.code) ||
+        dto.status === Status.INACTIVE)
+    ) {
+      throw new ConflictException(
+        'System roles cannot be renamed by code or deactivated',
+      );
+    }
 
     // Many-to-many changes are only persisted through save(), not update().
     await this.roleRepository.save({
@@ -158,9 +185,17 @@ export class RolesService {
   }
 
   async deleteByIds({ ids }: DeleteRolesDto, actorId: string) {
-    const inUse = await this.userRepository.exists({
-      where: { roleId: In(ids), status: Not(Status.DELETED) },
-    });
+    const [inUse, isSystem] = await Promise.all([
+      this.userRepository.exists({
+        where: { roleId: In(ids), status: Not(Status.DELETED) },
+      }),
+      this.roleRepository.exists({
+        where: { id: In(ids), systemRole: true, status: Not(Status.DELETED) },
+      }),
+    ]);
+    if (isSystem) {
+      throw new ConflictException('System roles cannot be deleted');
+    }
     if (inUse) {
       throw new ConflictException(
         'One or more roles are still assigned to users',
